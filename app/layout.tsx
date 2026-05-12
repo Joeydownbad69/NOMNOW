@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   title: "NOMNOW - Food Delivery",
   description: "Order delicious food from your favorite local restaurants. Fast delivery, easy ordering.",
   keywords: ["food delivery", "restaurant", "order food", "takeout", "delivery"],
+  icons: {
+    icon: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Favicon-GqIn09DY4vYpWhFl2O2uCkcCKj0TvN.png",
+  },
 };
 
 export const viewport: Viewport = {

@@ -30,8 +30,11 @@ export function Header({
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-primary">NOM</span>
-            <span className="text-2xl font-bold text-foreground">NOW</span>
+            <img 
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo%20Concept%20Text-gVm5HPAch0EPOfj0kFaUU1hJIoGaq8.png" 
+              alt="NOMNOW Logo" 
+              className="h-8 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
