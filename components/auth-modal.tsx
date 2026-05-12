@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -16,39 +17,68 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setIsLoading(true);
+
+    const supabase = createClient();
 
     try {
       if (mode === "signup") {
-        const res = await fetch("/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo:
+              process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
+              `${window.location.origin}/auth/callback`,
+          },
         });
-        
-        const data = await res.json();
-        
-        if (!res.ok) {
-          throw new Error(data.error || "Failed to sign up");
+
+        if (error) {
+          throw error;
         }
-        
-        onSuccess?.();
-        onClose();
+
+        // Check if email confirmation is required
+        if (data.user && !data.session) {
+          setSuccess("Check your email to confirm your account!");
+        } else {
+          onSuccess?.();
+          onClose();
+        }
       } else {
-        // For sign in, we would typically use Supabase client auth
-        // This is a placeholder - implement with your auth flow
+        // Sign in with Supabase client directly
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          throw error;
+        }
+
         onSuccess?.();
         onClose();
+        // Refresh the page to update auth state
+        window.location.reload();
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "An error occurred");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleClose = () => {
+    setError("");
+    setSuccess("");
+    setEmail("");
+    setPassword("");
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -58,7 +88,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-foreground/50 backdrop-blur-sm z-50"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Modal */}
@@ -70,7 +100,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           {/* Header */}
           <div className="relative p-6 pb-0">
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
               aria-label="Close"
             >
@@ -94,6 +124,12 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             {error && (
               <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                 <p className="text-sm text-red-500">{error}</p>
+              </div>
+            )}
+
+            {success && (
+              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <p className="text-sm text-green-600">{success}</p>
               </div>
             )}
 
@@ -173,7 +209,11 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   {"Don't have an account? "}
                   <button
                     type="button"
-                    onClick={() => setMode("signup")}
+                    onClick={() => {
+                      setMode("signup");
+                      setError("");
+                      setSuccess("");
+                    }}
                     className="text-primary font-medium hover:underline"
                   >
                     Sign up
@@ -184,7 +224,11 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   Already have an account?{" "}
                   <button
                     type="button"
-                    onClick={() => setMode("signin")}
+                    onClick={() => {
+                      setMode("signin");
+                      setError("");
+                      setSuccess("");
+                    }}
                     className="text-primary font-medium hover:underline"
                   >
                     Sign in
