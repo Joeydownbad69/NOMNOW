@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Menu, X, ShoppingCart, User, Search, LogOut } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { ProfileDropdown } from "./profile-dropdown";
 
 interface HeaderProps {
   cartCount?: number;
@@ -22,12 +23,6 @@ export function Header({
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-
-  const handleSignOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    window.location.reload();
-  };
 
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
@@ -109,43 +104,13 @@ export function Header({
                   )}
                 </button>
 
-                {/* User Dropdown */}
-                {userMenuOpen && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-10" 
-                      onClick={() => setUserMenuOpen(false)} 
-                    />
-                    <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-lg z-20 overflow-hidden">
-                      <div className="p-3 border-b border-border">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {user.email}
-                        </p>
-                        {!isEmailConfirmed && (
-                          <p className="text-xs text-amber-600 mt-1">
-                            Email not confirmed
-                          </p>
-                        )}
-                      </div>
-                      <div className="p-1">
-                        <Link 
-                          href="/orders"
-                          className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors"
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          My Orders
-                        </Link>
-                        <button 
-                          onClick={handleSignOut}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          Sign Out
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
+                {/* Profile Dropdown */}
+                <ProfileDropdown
+                  email={user.email || ""}
+                  isOpen={userMenuOpen}
+                  onClose={() => setUserMenuOpen(false)}
+                  isEmailConfirmed={isEmailConfirmed}
+                />
               </div>
             ) : (
               <button 
@@ -212,13 +177,12 @@ export function Header({
                       </p>
                     )}
                   </div>
-                  <button 
-                    onClick={handleSignOut}
-                    className="mt-2 mx-4 flex items-center justify-center gap-2 px-4 h-10 bg-red-500/10 text-red-500 text-sm font-medium rounded-full hover:bg-red-500/20 transition-colors"
+                  <Link 
+                    href="/orders"
+                    className="mt-2 mx-4 flex items-center justify-center px-4 h-10 bg-secondary text-foreground text-sm font-medium rounded-full hover:bg-secondary/80 transition-colors"
                   >
-                    <LogOut className="w-4 h-4" />
-                    Sign Out
-                  </button>
+                    View Orders
+                  </Link>
                 </>
               ) : (
                 <button 

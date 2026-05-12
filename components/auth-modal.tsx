@@ -85,11 +85,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-foreground/50 backdrop-blur-sm z-50"
-        onClick={handleClose}
-      />
+      {/* Backdrop - no blur */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-50"
+          onClick={handleClose}
+        />
+      )}
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
