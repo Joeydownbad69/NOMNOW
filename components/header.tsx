@@ -1,17 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, ShoppingCart, User, Search } from "lucide-react";
+import { Menu, X, ShoppingCart, User, Search, LogOut } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 interface HeaderProps {
   cartCount?: number;
   onCartClick?: () => void;
   onAuthClick?: () => void;
+  user?: { email?: string } | null;
+  isEmailConfirmed?: boolean;
 }
 
-export function Header({ cartCount = 0, onCartClick, onAuthClick }: HeaderProps) {
+export function Header({ 
+  cartCount = 0, 
+  onCartClick, 
+  onAuthClick, 
+  user,
+  isEmailConfirmed 
+}: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
@@ -75,13 +91,70 @@ export function Header({ cartCount = 0, onCartClick, onAuthClick }: HeaderProps)
               )}
             </button>
 
-            {/* Auth Button */}
-            <button 
-              onClick={onAuthClick}
-              className="hidden sm:flex items-center justify-center px-4 h-10 bg-primary text-primary-foreground text-sm font-medium rounded-full hover:bg-primary/90 transition-colors"
-            >
-              Sign In
-            </button>
+            {/* User Menu / Auth Button */}
+            {user ? (
+              <div className="relative">
+                <button 
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="hidden sm:flex items-center gap-2 px-3 h-10 bg-secondary text-foreground text-sm font-medium rounded-full hover:bg-secondary/80 transition-colors"
+                >
+                  <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="max-w-[120px] truncate">
+                    {user.email?.split("@")[0]}
+                  </span>
+                  {!isEmailConfirmed && (
+                    <span className="w-2 h-2 bg-amber-500 rounded-full" title="Email not confirmed" />
+                  )}
+                </button>
+
+                {/* User Dropdown */}
+                {userMenuOpen && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-10" 
+                      onClick={() => setUserMenuOpen(false)} 
+                    />
+                    <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-lg z-20 overflow-hidden">
+                      <div className="p-3 border-b border-border">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {user.email}
+                        </p>
+                        {!isEmailConfirmed && (
+                          <p className="text-xs text-amber-600 mt-1">
+                            Email not confirmed
+                          </p>
+                        )}
+                      </div>
+                      <div className="p-1">
+                        <Link 
+                          href="/orders"
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          My Orders
+                        </Link>
+                        <button 
+                          onClick={handleSignOut}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <button 
+                onClick={onAuthClick}
+                className="hidden sm:flex items-center justify-center px-4 h-10 bg-primary text-primary-foreground text-sm font-medium rounded-full hover:bg-primary/90 transition-colors"
+              >
+                Sign In
+              </button>
+            )}
 
             {/* Mobile Menu Button */}
             <button 
@@ -126,12 +199,35 @@ export function Header({ cartCount = 0, onCartClick, onAuthClick }: HeaderProps)
               >
                 Orders
               </Link>
-              <button 
-                onClick={onAuthClick}
-                className="mt-2 mx-4 flex items-center justify-center px-4 h-10 bg-primary text-primary-foreground text-sm font-medium rounded-full hover:bg-primary/90 transition-colors"
-              >
-                Sign In
-              </button>
+              
+              {user ? (
+                <>
+                  <div className="mt-2 mx-4 px-3 py-2 bg-secondary rounded-lg">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {user.email}
+                    </p>
+                    {!isEmailConfirmed && (
+                      <p className="text-xs text-amber-600 mt-1">
+                        Email not confirmed
+                      </p>
+                    )}
+                  </div>
+                  <button 
+                    onClick={handleSignOut}
+                    className="mt-2 mx-4 flex items-center justify-center gap-2 px-4 h-10 bg-red-500/10 text-red-500 text-sm font-medium rounded-full hover:bg-red-500/20 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={onAuthClick}
+                  className="mt-2 mx-4 flex items-center justify-center px-4 h-10 bg-primary text-primary-foreground text-sm font-medium rounded-full hover:bg-primary/90 transition-colors"
+                >
+                  Sign In
+                </button>
+              )}
             </nav>
           </div>
         )}

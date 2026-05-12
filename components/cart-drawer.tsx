@@ -2,6 +2,7 @@
 
 import { X, Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
 import { MenuItem } from "./menu-item-card";
+import { EmailConfirmBanner } from "./email-confirm-banner";
 
 export interface CartItem {
   item: MenuItem;
@@ -15,6 +16,9 @@ interface CartDrawerProps {
   onUpdateQuantity: (itemId: string, quantity: number) => void;
   onRemoveItem: (itemId: string) => void;
   onCheckout: () => void;
+  user?: { email?: string } | null;
+  isEmailConfirmed?: boolean;
+  onSignInClick?: () => void;
 }
 
 export function CartDrawer({
@@ -24,6 +28,9 @@ export function CartDrawer({
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
+  user,
+  isEmailConfirmed = true,
+  onSignInClick,
 }: CartDrawerProps) {
   const subtotal = items.reduce(
     (sum, { item, quantity }) => sum + item.price * quantity,
@@ -31,6 +38,8 @@ export function CartDrawer({
   );
   const deliveryFee = items.length > 0 ? 2.99 : 0;
   const total = subtotal + deliveryFee;
+
+  const canCheckout = user && isEmailConfirmed;
 
   return (
     <>
@@ -154,8 +163,13 @@ export function CartDrawer({
 
           {/* Footer */}
           {items.length > 0 && (
-            <div className="p-4 border-t border-border bg-card">
-              <div className="space-y-2 mb-4">
+            <div className="p-4 border-t border-border bg-card space-y-4">
+              {/* Email Confirmation Banner - show if logged in but email not confirmed */}
+              {user && !isEmailConfirmed && (
+                <EmailConfirmBanner email={user.email || ""} />
+              )}
+
+              <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="text-foreground">${subtotal.toFixed(2)}</span>
@@ -169,12 +183,30 @@ export function CartDrawer({
                   <span className="text-primary">${total.toFixed(2)}</span>
                 </div>
               </div>
-              <button
-                onClick={onCheckout}
-                className="w-full h-12 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
-              >
-                Proceed to Checkout
-              </button>
+
+              {/* Checkout Button */}
+              {!user ? (
+                <button
+                  onClick={onSignInClick}
+                  className="w-full h-12 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
+                >
+                  Sign In to Checkout
+                </button>
+              ) : !isEmailConfirmed ? (
+                <button
+                  disabled
+                  className="w-full h-12 bg-muted text-muted-foreground font-semibold rounded-xl cursor-not-allowed"
+                >
+                  Confirm Email to Checkout
+                </button>
+              ) : (
+                <button
+                  onClick={onCheckout}
+                  className="w-full h-12 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
+                >
+                  Proceed to Checkout
+                </button>
+              )}
             </div>
           )}
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useSWR from "swr";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
@@ -10,6 +10,7 @@ import { CartDrawer, CartItem } from "@/components/cart-drawer";
 import { AuthModal } from "@/components/auth-modal";
 import { Footer } from "@/components/footer";
 import { MenuItem } from "@/components/menu-item-card";
+import { useUser } from "@/hooks/use-user";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -95,6 +96,7 @@ export default function Home() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [category, setCategory] = useState("all");
 
+  const { user, isEmailConfirmed } = useUser();
   const { data, isLoading } = useSWR("/api/menu", fetcher);
   
   // Use API data if available, otherwise use sample items
@@ -151,6 +153,8 @@ export default function Home() {
         cartCount={cartCount} 
         onCartClick={() => setCartOpen(true)}
         onAuthClick={() => setAuthOpen(true)}
+        user={user}
+        isEmailConfirmed={isEmailConfirmed}
       />
       
       <main className="flex-1">
@@ -268,6 +272,9 @@ export default function Home() {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
         onCheckout={handleCheckout}
+        user={user}
+        isEmailConfirmed={isEmailConfirmed}
+        onSignInClick={() => setAuthOpen(true)}
       />
 
       {/* Auth Modal */}
