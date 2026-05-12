@@ -29,11 +29,11 @@ export function Header({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
             <img 
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo%20Concept%20Text-gVm5HPAch0EPOfj0kFaUU1hJIoGaq8.png" 
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/header-vQwIsbzDxk11INBk2enDPspTYwKgUJ.png" 
               alt="NOMNOW Logo" 
-              className="h-8 w-auto"
+              className="h-10 w-auto"
             />
           </Link>
 
