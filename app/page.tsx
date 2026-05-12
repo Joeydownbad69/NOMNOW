@@ -141,8 +141,17 @@ export default function Home() {
   };
 
   const handleCheckout = () => {
-    // Check if user is authenticated, if not show auth modal
-    setAuthOpen(true);
+    // Only show auth modal if user is not logged in
+    if (!user) {
+      setAuthOpen(true);
+    } else if (!isEmailConfirmed) {
+      // If user is logged in but email not confirmed, show confirmation message
+      console.log("[v0] Email not confirmed, user must confirm to checkout");
+    } else {
+      // User is authenticated and email is confirmed, proceed to checkout
+      console.log("[v0] Proceeding to checkout");
+      // TODO: Implement actual checkout flow
+    }
   };
 
   const cartCount = cartItems.reduce((sum, ci) => sum + ci.quantity, 0);

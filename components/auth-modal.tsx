@@ -63,8 +63,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
         onSuccess?.();
         onClose();
-        // Refresh the page to update auth state
-        window.location.reload();
+        // Don't reload - useUser hook will detect the auth state change automatically
       }
     } catch (err: any) {
       setError(err.message || "An error occurred");
