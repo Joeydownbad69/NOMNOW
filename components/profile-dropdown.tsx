@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { LogOut, Settings, History, CreditCard, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -19,6 +19,25 @@ export function ProfileDropdown({
   isEmailConfirmed = false,
 }: ProfileDropdownProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click without interfering with the toggle button
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    // Delay so the button click that opened it doesn't immediately close it
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   const handleSignOut = async () => {
     setIsLoading(true);
@@ -30,15 +49,8 @@ export function ProfileDropdown({
   if (!isOpen) return null;
 
   return (
-    <>
-      {/* Backdrop - no blur */}
-      <div
-        className="fixed inset-0 z-40"
-        onClick={onClose}
-      />
-
-      {/* Dropdown */}
-      <div className="absolute top-full right-0 mt-2 w-64 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden">
+    /* Dropdown */
+    <div ref={dropdownRef} className="absolute top-full right-0 mt-2 w-64 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden">
         {/* Header */}
         <div className="p-4 border-b border-border">
           <p className="text-sm font-semibold text-foreground truncate">
@@ -105,7 +117,6 @@ export function ProfileDropdown({
             <span>{isLoading ? "Signing out..." : "Sign Out"}</span>
           </button>
         </div>
-      </div>
-    </>
+    </div>
   );
 }
