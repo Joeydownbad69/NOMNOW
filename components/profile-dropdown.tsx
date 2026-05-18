@@ -53,22 +53,22 @@ export function ProfileDropdown({
 
         {/* Menu Items */}
         <div className="p-1">
-          {/* Settings */}
+          {/* Profile Settings */}
           <Link
-            href="/settings"
+            href="/profile"
             className="flex items-center justify-between px-3 py-2.5 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors group"
             onClick={onClose}
           >
             <div className="flex items-center gap-3">
               <Settings className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
-              <span>Settings</span>
+              <span>Profile Settings</span>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </Link>
 
           {/* Order History */}
           <Link
-            href="/orders"
+            href="/profile/orders"
             className="flex items-center justify-between px-3 py-2.5 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors group"
             onClick={onClose}
           >
@@ -81,7 +81,7 @@ export function ProfileDropdown({
 
           {/* Payment Methods */}
           <Link
-            href="/payment-methods"
+            href="/profile/payment-methods"
             className="flex items-center justify-between px-3 py-2.5 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors group"
             onClick={onClose}
           >
